@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Hostel Complaint Management - Home</title>
+
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+<style>
+    /* Background image styling */
+    .hero-bg {
+        background-image: url('assets/images/Hoog en Laag.JPEG');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    /* Overlay */
+    .bg-overlay {
+        background: rgba(0, 0, 0, 0.55);
+    }
+</style>
+</head>
+
+<body class="font-display text-white">
+
+<!-- Full screen section -->
+<div class="hero-bg min-h-screen w-full relative">
+
+    <!-- Black overlay for readability -->
+    <div class="bg-overlay min-h-screen w-full flex flex-col">
+
+        <!-- TOP NAVBAR -->
+        <header class="flex items-center justify-between px-6 py-5">
+            <h1 class="text-2xl font-bold tracking-wide">Hostel Complaint Management</h1>
+
+            <nav class="hidden md:flex gap-8 text-white/90 font-medium">
+                <a class="hover:text-[#00bdd6] transition" href="#">Home</a>
+                <a class="hover:text-[#00bdd6] transition" href="registration.html">Dashboard</a>
+                <a class="hover:text-[#00bdd6] transition" href="aboutPage.html">About & Contact</a>
+            </nav>
+
+            <!-- Mobile Menu -->
+            <button class="md:hidden text-white">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+        </header>
+
+        <!-- MAIN CONTENT -->
+        <div class="flex flex-col flex-1 justify-center items-center text-center px-6">
+
+            <h2 class="text-4xl md:text-5xl font-black leading-tight mb-4">
+                Welcome to the Hostel Complaint Portal
+            </h2>
+
+            <p class="text-lg md:text-xl text-white/80 max-w-2xl mb-8">
+                Submit issues easily, track responses, and help us maintain a safe
+                and comfortable hostel environment.
+            </p>
+
+            <div class="flex flex-wrap gap-4 justify-center">
+                <a href="Login.html"
+                   class="bg-[#00bdd6] text-white font-semibold px-6 py-3 rounded-lg hover:bg-[#00a5bd] transition">
+                   Login
+                </a>
+
+                <a href="registration.html"
+                   class="bg-white/20 backdrop-blur-md text-white font-semibold px-6 py-3 rounded-lg border border-white/30 hover:bg-white/30 transition">
+                   Register
+                </a>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="text-center text-sm text-white/60 py-6">
+            © 2025 University Name. All Rights Reserved.
+        </footer>
+
+    </div>
+</div>
+
+</body>
+</html>

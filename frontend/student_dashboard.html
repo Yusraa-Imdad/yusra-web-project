@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UniHostel Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+</head>
+
+<body class="bg-[#f7fafc] font-sans">
+
+<h1 id="welcomeName" class="text-3xl md:text-4xl font-bold mb-6"></h1>
+
+<div class="flex min-h-screen">
+
+  <!-- Mobile menu button -->
+  <button id="menuBtn" class="md:hidden fixed top-4 left-4 z-50 bg-[#0c1b1d] p-2 rounded-md text-white">☰</button>
+
+  <!-- Sidebar -->
+  <aside id="sidebar"
+    class="bg-[#0c1b1d] text-white w-64 p-6 fixed md:relative h-full md:h-auto
+    transform -translate-x-full md:translate-x-0 transition-transform duration-300
+    z-40 flex flex-col">
+
+    <h2 class="text-2xl font-bold mb-10 flex items-center gap-2">
+      🎓 UniHostel
+    </h2>
+
+    <nav class="space-y-3 flex-grow">
+      <a class="block bg-white/10 text-white px-4 py-3 rounded-lg flex items-center gap-2" href="#home">🏠 Home</a>
+      <a class="block px-4 py-3 rounded-lg hover:bg-white/10 flex items-center gap-2" href="#submit">➕ Submit Complaint</a>
+      <a class="block px-4 py-3 rounded-lg hover:bg-white/10 flex items-center gap-2" href="#my">📄 My Complaints</a>
+    </nav>
+
+    <div class="pt-8 border-t border-white/10">
+      <p class="font-semibold" id="studentName"></p>
+      <p class="text-sm text-gray-400" id="studentEmail"></p>
+      <button id="logoutBtn" class="mt-4 text-red-400 flex items-center gap-2">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-4 md:p-10 md:ml-64">
+
+    <section id="home">
+      <h1 class="text-3xl md:text-4xl font-bold mb-6" id="welcomeUser"></h1>
+    </section>
+
+    <!-- Complaint Form -->
+    <section id="submit" class="bg-white p-6 rounded-xl shadow-lg mb-10">
+      <h2 class="text-xl font-semibold mb-5">Submit a New Complaint</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label class="block mb-1 font-medium">Title</label>
+          <input id="complaintTitle" type="text"
+            class="w-full border rounded-lg px-4 py-2"
+            placeholder="e.g. Leaking tap in bathroom">
+        </div>
+
+        <div>
+          <label class="block mb-1 font-medium">Category</label>
+          <select id="complaintCategory" class="w-full border rounded-lg px-4 py-2">
+            <option value="">Select Category</option>
+            <option>Electric</option>
+            <option>Plumbing</option>
+            <option>WiFi</option>
+          </select>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block mb-1 font-medium">Description</label>
+          <textarea id="complaintDesc" rows="4"
+            class="w-full border rounded-lg px-4 py-2"
+            placeholder="Please provide details..."></textarea>
+        </div>
+      </div>
+
+      <div class="mt-4 text-right">
+        <button id="submitComplaintBtn"
+          class="bg-[#0ea5b7] text-white px-6 py-2 rounded-lg hover:scale-105 transition">
+          Submit Complaint
+        </button>
+      </div>
+    </section>
+
+    <!-- Complaints -->
+    <section id="my">
+      <h2 class="text-xl font-bold mb-4">My Complaints</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+        id="complaintsContainer"></div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+/* ================= AUTH + USER INFO ================= */
+
+const API_BASE = "http://localhost:5000/api";
+const token = localStorage.getItem("token");
+const role = localStorage.getItem("role");
+const name = localStorage.getItem("userName");
+const email = localStorage.getItem("userEmail");
+
+if (!token || role !== "Student") {
+  alert("Unauthorized. Please login again.");
+  window.location.href = "login.html";
+}
+
+/* ✅ SAFE DOM UPDATE */
+if (name) {
+  document.getElementById("studentName").innerText = name;
+  document.getElementById("welcomeUser").innerText = `Welcome, ${name}!`;
+  document.getElementById("welcomeName").innerText = `Welcome, ${name}!`;
+}
+
+if (email) {
+  document.getElementById("studentEmail").innerText = email;
+}
+
+/* ================= LOGOUT ================= */
+
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  localStorage.clear();
+  window.location.href = "login.html";
+});
+
+/* ================= LOAD COMPLAINTS ================= */
+
+async function loadMyComplaints() {
+  try {
+    const res = await fetch(`${API_BASE}/complaints/my`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    if (!res.ok) throw new Error();
+
+    const complaints = await res.json();
+    const container = document.getElementById("complaintsContainer");
+    container.innerHTML = "";
+
+    complaints.forEach(c => {
+      const card = document.createElement("div");
+      card.className = "bg-white rounded-xl shadow p-5";
+
+      const statusColor =
+        c.status === "Pending" ? "text-orange-500" :
+        c.status === "In Progress" ? "text-blue-500" :
+        "text-green-600";
+
+      card.innerHTML = `
+        <span class="text-sm ${statusColor} font-semibold">● ${c.status}</span>
+        <h3 class="text-lg font-semibold mt-2">${c.title}</h3>
+        <p class="text-sm text-gray-500 mt-1">Category: ${c.category}</p>
+        <p class="text-sm text-gray-500 mt-1">
+          Submitted: ${new Date(c.createdAt).toLocaleDateString()}
+        </p>
+        <p class="text-sm text-gray-700 mt-2">${c.description}</p>
+      `;
+      container.appendChild(card);
+    });
+
+  } catch (err) {
+    alert("Session expired. Please login again.");
+    window.location.href = "login.html";
+  }
+}
+
+/* ================= SUBMIT COMPLAINT ================= */
+
+document.getElementById("submitComplaintBtn").addEventListener("click", async () => {
+  const title = complaintTitle.value.trim();
+  const category = complaintCategory.value;
+  const description = complaintDesc.value.trim();
+
+  if (!title || !category || !description) {
+    alert("Please fill all fields");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/complaints/add`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ title, category, description })
+    });
+
+    if (!res.ok) throw new Error();
+
+    complaintTitle.value = "";
+    complaintDesc.value = "";
+    complaintCategory.value = "";
+
+    loadMyComplaints();
+
+  } catch {
+    alert("Failed to submit complaint");
+  }
+});
+
+document.addEventListener("DOMContentLoaded", loadMyComplaints);
+</script>
+
+</body>
+</html>
